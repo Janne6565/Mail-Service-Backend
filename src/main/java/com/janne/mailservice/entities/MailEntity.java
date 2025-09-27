@@ -20,6 +20,7 @@ public class MailEntity {
     @NonNull
     private String subject;
     @NonNull
+    @Lob
     private String body;
     @NonNull
     private LocalDateTime sentDate;
