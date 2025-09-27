@@ -41,6 +41,8 @@ spec:
             # Enable graceful shutdown at app level (align with terminationGracePeriodSeconds)
             - name: SERVER_SHUTDOWN
               value: graceful
+            - name: SERVER_SERVLET_CONTEXT-PATH
+              value: /mail-service
             - name: MAIL_HOST
               valueFrom:
                 secretKeyRef:
@@ -61,10 +63,15 @@ spec:
                 secretKeyRef:
                   name: mail-service-secrets
                   key: mail_password
+            - name: AUTH_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: auth_key
 
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /mail-service/actuator/health/readiness
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -72,7 +79,7 @@ spec:
             timeoutSeconds: 1
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /mail-service/actuator/health/liveness
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
@@ -80,7 +87,7 @@ spec:
             timeoutSeconds: 1
           startupProbe:
             httpGet:
-              path: /actuator/health
+              path: /mail-service/actuator/health
               port: 8080
             periodSeconds: 5
             failureThreshold: 30

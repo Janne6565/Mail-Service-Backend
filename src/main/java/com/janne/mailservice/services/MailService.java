@@ -45,6 +45,7 @@ public class MailService {
             mailMessage.setFrom(mailAuthor);
             mailSender.send(mailMessage);
             mailEntity.setSentDate(LocalDateTime.now());
+            mailEntity.setSuccess(true);
             log.debug("Plain text Mail sent successfully");
             return mailEntity;
         } catch (Exception e) {
@@ -63,6 +64,7 @@ public class MailService {
             helper.setFrom(mailAuthor);
             mailSender.send(helper.getMimeMessage());
             mailEntity.setSentDate(LocalDateTime.now());
+            mailEntity.setSuccess(true);
             log.debug("HTML Mail sent successfully");
             return mailEntity;
         } catch (Exception e) {

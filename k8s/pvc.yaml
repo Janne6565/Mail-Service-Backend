@@ -2,7 +2,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mail-service-pvc
-  namespace: ase-12
 spec:
   accessModes:
     - ReadWriteOnce
