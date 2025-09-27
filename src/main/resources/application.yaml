@@ -1,0 +1,39 @@
+app:
+  auth_key: test
+spring:
+  application:
+    name: mailService
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:h2:file:./data/mydb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,readiness,liveness,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      probes:
+        enabled: true

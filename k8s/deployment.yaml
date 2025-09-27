@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-service
+  labels:
+    app.kubernetes.io/name: mail-service
+    app.kubernetes.io/instance: mail-service
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mail-service
+      app.kubernetes.io/instance: mail-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mail-service
+        app.kubernetes.io/instance: mail-service
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: app
+          image: janne5656/mail-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # Enable graceful shutdown at app level (align with terminationGracePeriodSeconds)
+            - name: SERVER_SHUTDOWN
+              value: graceful
+            - name: MAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: mail_host
+            - name: MAIL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: mail_port
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: mail_username
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: mail_password
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 6
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 1
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 30
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1024Mi"
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: [ "ALL" ]
+
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: tmp
+          emptyDir: { }
+        - name: data
+          persistentVolumeClaim:
+            claimName: mail-service-pvc
