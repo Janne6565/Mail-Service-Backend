@@ -1,32 +1,38 @@
-app:
-  auth-key: ${AUTH_KEY:default_auth_key}
 spring:
   application:
     name: mailService
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mailservice}
+    username: ${SPRING_DATASOURCE_USERNAME:mailservice}
+    password: ${SPRING_DATASOURCE_PASSWORD:mailservice}
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: false
     hibernate:
       ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
-  datasource:
-    url: jdbc:h2:file:./data/mydb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
+
+jwt:
+  # base64-encoded signing key — CHANGE THIS IN PRODUCTION
+  secret-key: ${JWT_SECRET_KEY:bWFpbHNlcnZpY2Utc2VjcmV0LWtleS1mb3ItZGV2LW9ubHktZG8tbm90LXVzZS1pbi1wcm9k}
+  identity-token-expiration-time: 3600000      # 1 hour
+  refresh-token-expiration-time: 2592000000    # 30 days
+
+app:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    email: ${ADMIN_EMAIL:admin@localhost}
+    password: ${ADMIN_PASSWORD:changeme}
+  # base64-encoded 32-byte AES-256 key — CHANGE THIS IN PRODUCTION
+  cipher-key: ${CIPHER_KEY:bWFpbFNlcnZpY2VDaXBoZXJLZXkwMTIzNDU2Nzg=}
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    default-retention-days: ${DEFAULT_MAIL_RETENTION_DAYS:30}
+
 management:
   endpoints:
     web:
