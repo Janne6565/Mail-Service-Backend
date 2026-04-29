@@ -7,7 +7,7 @@ metadata:
 spec:
   tls:
     - hosts:
-        - mail-service.cosy-hosting.net
+        - mail-service.jannekeipert.de
       secretName: mail-service-tls
   ingressClassName: traefik
   rules:
