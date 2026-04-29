@@ -6,7 +6,7 @@ on:
     tags: ['v*.*.*']
 
 env:
-  IMAGE_NAME: magenta-mause/cosy-domain-provider-backend
+  IMAGE_NAME: janne6565/Mail-Service-Backend
 
 jobs:
   build-and-push:
