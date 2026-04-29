@@ -11,5 +11,7 @@ public class CreateApiKeyDto {
     @Size(max = 100)
     private String label;
 
+    private boolean enableSendMails = false;
+
     private boolean enableReadMails = false;
 }

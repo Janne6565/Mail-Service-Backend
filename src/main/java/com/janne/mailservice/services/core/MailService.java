@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -94,13 +95,15 @@ public class MailService {
     }
 
     public Page<MailDto> getMailsForConnection(
-            String connectionUuid, UserEntity user, int page, int size) {
+            String connectionUuid, UserEntity user, int page, int size, String apiKeyUuid) {
         smtpConnectionService.requireAccess(connectionUuid, user);
-        return mailRepository
-                .findAllBySmtpConnectionUuid(
-                        connectionUuid,
-                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sentAt")))
-                .map(this::toDto);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sentAt"));
+        if (apiKeyUuid != null) {
+            return mailRepository
+                    .findAllBySmtpConnectionUuidAndApiKeyUuid(connectionUuid, apiKeyUuid, pageable)
+                    .map(this::toDto);
+        }
+        return mailRepository.findAllBySmtpConnectionUuid(connectionUuid, pageable).map(this::toDto);
     }
 
     public MailDto getMailById(String mailUuid, String connectionUuid, UserEntity user) {

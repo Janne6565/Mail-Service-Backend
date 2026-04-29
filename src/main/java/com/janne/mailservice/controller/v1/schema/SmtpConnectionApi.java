@@ -61,7 +61,8 @@ public interface SmtpConnectionApi {
     ResponseEntity<Page<MailDto>> getMails(
             @PathVariable String id,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String apiKeyUuid);
 
     @Operation(summary = "Send a mail through a connection (JWT auth)")
     @ApiResponse(responseCode = "200")

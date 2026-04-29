@@ -45,9 +45,11 @@ public class ApiKeyService {
         String secret = Base64.getUrlEncoder().withoutPadding().encodeToString(secretBytes);
 
         Set<ApiKeyScope> scopes = new HashSet<>();
-        scopes.add(ApiKeyScope.SEND);
-        if (dto.isEnableReadMails()) {
-            scopes.add(ApiKeyScope.READ_MAILS);
+        if (dto.isEnableSendMails()) scopes.add(ApiKeyScope.SEND);
+        if (dto.isEnableReadMails()) scopes.add(ApiKeyScope.READ_MAILS);
+        if (scopes.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "At least one scope must be selected");
         }
 
         ApiKeyEntity entity =

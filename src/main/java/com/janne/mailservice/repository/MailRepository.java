@@ -13,6 +13,9 @@ public interface MailRepository extends JpaRepository<MailEntity, String> {
 
     Page<MailEntity> findAllBySmtpConnectionUuid(String smtpConnectionUuid, Pageable pageable);
 
+    Page<MailEntity> findAllBySmtpConnectionUuidAndApiKeyUuid(
+            String smtpConnectionUuid, String apiKeyUuid, Pageable pageable);
+
     Optional<MailEntity> findByUuidAndSmtpConnectionUuid(String uuid, String smtpConnectionUuid);
 
     @Modifying

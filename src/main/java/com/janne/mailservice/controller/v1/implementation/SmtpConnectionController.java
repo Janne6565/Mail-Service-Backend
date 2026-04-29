@@ -61,9 +61,9 @@ public class SmtpConnectionController implements SmtpConnectionApi {
     }
 
     @Override
-    public ResponseEntity<Page<MailDto>> getMails(String id, int page, int size) {
+    public ResponseEntity<Page<MailDto>> getMails(String id, int page, int size, String apiKeyUuid) {
         UserEntity user = securityContextService.requireUser();
-        return ResponseEntity.ok(mailService.getMailsForConnection(id, user, page, size));
+        return ResponseEntity.ok(mailService.getMailsForConnection(id, user, page, size, apiKeyUuid));
     }
 
     @Override
