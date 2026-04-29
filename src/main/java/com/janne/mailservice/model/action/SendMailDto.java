@@ -16,5 +16,5 @@ public class SendMailDto {
 
     @NotBlank private String body;
 
-    private boolean html;
+    private boolean enableHtml;
 }

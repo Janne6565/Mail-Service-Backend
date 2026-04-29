@@ -54,7 +54,7 @@ public class MailService {
             helper.setFrom(connection.getFromAddress());
             helper.setTo(dto.getRecipient());
             helper.setSubject(dto.getSubject());
-            helper.setText(dto.getBody(), dto.isHtml());
+            helper.setText(dto.getBody(), dto.isEnableHtml());
             sender.send(message);
         } catch (Exception e) {
             success = false;
@@ -69,7 +69,7 @@ public class MailService {
                         .recipient(dto.getRecipient())
                         .subject(dto.getSubject())
                         .body(dto.getBody())
-                        .html(dto.isHtml())
+                        .html(dto.isEnableHtml())
                         .success(success)
                         .errorMessage(errorMessage)
                         .build();
