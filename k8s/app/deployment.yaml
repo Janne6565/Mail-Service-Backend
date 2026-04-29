@@ -41,8 +41,6 @@ spec:
             # Enable graceful shutdown at app level (align with terminationGracePeriodSeconds)
             - name: SERVER_SHUTDOWN
               value: graceful
-            - name: SERVER_SERVLET_CONTEXT-PATH
-              value: /api
             - name: ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
