@@ -42,36 +42,51 @@ spec:
             - name: SERVER_SHUTDOWN
               value: graceful
             - name: SERVER_SERVLET_CONTEXT-PATH
-              value: /mail-service
-            - name: MAIL_HOST
+              value: /api
+            - name: ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: mail-service-secrets
-                  key: mail_host
-            - name: MAIL_PORT
+                  key: admin_username
+            - name: ADMIN_EMAIL
               valueFrom:
                 secretKeyRef:
                   name: mail-service-secrets
-                  key: mail_port
-            - name: MAIL_USERNAME
+                  key: admin_email
+            - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mail-service-secrets
-                  key: mail_username
-            - name: MAIL_PASSWORD
+                  key: admin_password
+            - name: JWT_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: mail-service-secrets
-                  key: mail_password
-            - name: AUTH_KEY
+                  key: jwt_secret_key
+            - name: CIPHER_KEY
               valueFrom:
                 secretKeyRef:
                   name: mail-service-secrets
-                  key: auth_key
+                  key: cipher_key
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: db_url
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: db_username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: db_password
 
           readinessProbe:
             httpGet:
-              path: /mail-service/actuator/health/readiness
+              path: /actuator/health/readiness
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -79,7 +94,7 @@ spec:
             timeoutSeconds: 1
           livenessProbe:
             httpGet:
-              path: /mail-service/actuator/health/liveness
+              path: /actuator/health/liveness
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
@@ -87,7 +102,7 @@ spec:
             timeoutSeconds: 1
           startupProbe:
             httpGet:
-              path: /mail-service/actuator/health
+              path: /actuator/health
               port: 8080
             periodSeconds: 5
             failureThreshold: 30
@@ -105,16 +120,3 @@ spec:
             readOnlyRootFilesystem: false
             capabilities:
               drop: [ "ALL" ]
-
-          volumeMounts:
-            - name: data
-              mountPath: /app/data
-            - name: tmp
-              mountPath: /tmp
-
-      volumes:
-        - name: tmp
-          emptyDir: { }
-        - name: data
-          persistentVolumeClaim:
-            claimName: mail-service-pvc

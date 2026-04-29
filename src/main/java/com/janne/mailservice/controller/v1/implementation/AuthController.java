@@ -13,6 +13,7 @@ import com.janne.mailservice.services.auth.AuthService;
 import com.janne.mailservice.services.core.InviteService;
 import com.janne.mailservice.services.core.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
@@ -34,6 +36,7 @@ public class AuthController implements AuthApi {
 
     @Override
     public ResponseEntity<LoginResponseDto> login(LoginDto loginDto, TokenMode tokenMode) {
+        log.info("Login attempt for user: {}", loginDto.getEmail());
         String refreshToken = authService.loginUser(loginDto.getEmail(), loginDto.getPassword());
         return buildRefreshTokenResponse(refreshToken, tokenMode, HttpStatus.OK);
     }

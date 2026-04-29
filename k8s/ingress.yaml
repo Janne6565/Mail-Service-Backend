@@ -3,17 +3,21 @@ kind: Ingress
 metadata:
   name: mail-ingress
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure # send traffic over HTTPS
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+    - hosts:
+        - mail-service.cosy-hosting.net
+      secretName: mail-service-tls
   ingressClassName: traefik
   rules:
-    - host: jannekeipert.de
+    - host: mail-service.jannekeipert.de
       http:
         paths:
-          - path: /mail-service
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: mail-service-service
                 port:
-                  number: 80
+                  number: 8080

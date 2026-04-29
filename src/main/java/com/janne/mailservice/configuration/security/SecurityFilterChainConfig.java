@@ -31,10 +31,11 @@ public class SecurityFilterChainConfig {
                                 auth.requestMatchers(
                                                 "/api/v1/auth/**",
                                                 "/api/v3/api-docs/**",
-                                                "/api/swagger-ui/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html",
                                                 "/actuator/**")
                                         .permitAll()
-                                        .requestMatchers("/api/v1/admin/**")
+                                        .requestMatchers("/v1/admin/**")
                                         .hasRole("ADMIN")
                                         .dispatcherTypeMatchers(DispatcherType.ASYNC)
                                         .permitAll()
