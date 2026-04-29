@@ -5,8 +5,10 @@ import com.janne.mailservice.entity.UserEntity;
 import com.janne.mailservice.model.action.ChangePasswordDto;
 import com.janne.mailservice.model.action.UpdateUserDto;
 import com.janne.mailservice.model.core.UserDto;
+import com.janne.mailservice.model.core.UserSummaryDto;
 import com.janne.mailservice.services.auth.SecurityContextService;
 import com.janne.mailservice.services.core.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +38,12 @@ public class UserController implements UserApi {
         UserEntity user = securityContextService.requireUser();
         userService.changePassword(user.getUuid(), dto);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<List<UserSummaryDto>> listUsers() {
+        securityContextService.requireUser();
+        return ResponseEntity.ok(userService.getAllUserSummaries());
     }
 
     private UserDto toDto(UserEntity user) {

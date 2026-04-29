@@ -23,7 +23,7 @@ public class ApiKeyController implements ApiKeyApi {
     @Override
     public ResponseEntity<List<ApiKeyDto>> listKeys(String connectionId) {
         UserEntity user = securityContextService.requireUser();
-        return ResponseEntity.ok(apiKeyService.getKeysForConnection(connectionId, user.getUuid()));
+        return ResponseEntity.ok(apiKeyService.getKeysForConnection(connectionId, user));
     }
 
     @Override
@@ -31,13 +31,13 @@ public class ApiKeyController implements ApiKeyApi {
             String connectionId, CreateApiKeyDto dto) {
         UserEntity user = securityContextService.requireUser();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(apiKeyService.createApiKey(connectionId, user.getUuid(), dto));
+                .body(apiKeyService.createApiKey(connectionId, user, dto));
     }
 
     @Override
     public ResponseEntity<Void> revokeKey(String connectionId, String keyId) {
         UserEntity user = securityContextService.requireUser();
-        apiKeyService.revokeApiKey(keyId, connectionId, user.getUuid());
+        apiKeyService.revokeApiKey(keyId, connectionId, user);
         return ResponseEntity.noContent().build();
     }
 }

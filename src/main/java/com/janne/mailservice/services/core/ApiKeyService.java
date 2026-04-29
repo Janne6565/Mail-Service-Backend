@@ -2,6 +2,7 @@ package com.janne.mailservice.services.core;
 
 import com.janne.mailservice.entity.ApiKeyEntity;
 import com.janne.mailservice.entity.ApiKeyScope;
+import com.janne.mailservice.entity.UserEntity;
 import com.janne.mailservice.model.action.CreateApiKeyDto;
 import com.janne.mailservice.model.core.ApiKeyCreationResultDto;
 import com.janne.mailservice.model.core.ApiKeyDto;
@@ -28,16 +29,16 @@ public class ApiKeyService {
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public List<ApiKeyDto> getKeysForConnection(String connectionUuid, String userUuid) {
-        smtpConnectionService.getOwnedConnection(connectionUuid, userUuid);
+    public List<ApiKeyDto> getKeysForConnection(String connectionUuid, UserEntity user) {
+        smtpConnectionService.requireAccess(connectionUuid, user);
         return apiKeyRepository.findAllBySmtpConnectionUuid(connectionUuid).stream()
                 .map(this::toDto)
                 .toList();
     }
 
     public ApiKeyCreationResultDto createApiKey(
-            String connectionUuid, String userUuid, CreateApiKeyDto dto) {
-        smtpConnectionService.getOwnedConnection(connectionUuid, userUuid);
+            String connectionUuid, UserEntity user, CreateApiKeyDto dto) {
+        smtpConnectionService.requireAccess(connectionUuid, user);
 
         byte[] secretBytes = new byte[SECRET_BYTES];
         secureRandom.nextBytes(secretBytes);
@@ -67,8 +68,8 @@ public class ApiKeyService {
                 .build();
     }
 
-    public void revokeApiKey(String keyUuid, String connectionUuid, String userUuid) {
-        smtpConnectionService.getOwnedConnection(connectionUuid, userUuid);
+    public void revokeApiKey(String keyUuid, String connectionUuid, UserEntity user) {
+        smtpConnectionService.requireAccess(connectionUuid, user);
         ApiKeyEntity key =
                 apiKeyRepository
                         .findById(keyUuid)

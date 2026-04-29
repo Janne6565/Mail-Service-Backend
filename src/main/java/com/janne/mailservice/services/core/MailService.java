@@ -2,6 +2,7 @@ package com.janne.mailservice.services.core;
 
 import com.janne.mailservice.entity.MailEntity;
 import com.janne.mailservice.entity.SmtpConnectionEntity;
+import com.janne.mailservice.entity.UserEntity;
 import com.janne.mailservice.model.action.SendMailDto;
 import com.janne.mailservice.model.core.MailDto;
 import com.janne.mailservice.repository.MailRepository;
@@ -93,8 +94,8 @@ public class MailService {
     }
 
     public Page<MailDto> getMailsForConnection(
-            String connectionUuid, String userUuid, int page, int size) {
-        smtpConnectionService.getOwnedConnection(connectionUuid, userUuid);
+            String connectionUuid, UserEntity user, int page, int size) {
+        smtpConnectionService.requireAccess(connectionUuid, user);
         return mailRepository
                 .findAllBySmtpConnectionUuid(
                         connectionUuid,
@@ -102,8 +103,8 @@ public class MailService {
                 .map(this::toDto);
     }
 
-    public MailDto getMailById(String mailUuid, String connectionUuid, String userUuid) {
-        smtpConnectionService.getOwnedConnection(connectionUuid, userUuid);
+    public MailDto getMailById(String mailUuid, String connectionUuid, UserEntity user) {
+        smtpConnectionService.requireAccess(connectionUuid, user);
         return mailRepository
                 .findByUuidAndSmtpConnectionUuid(mailUuid, connectionUuid)
                 .map(this::toDto)

@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 public class SmtpConnectionDto {
     private String uuid;
+    private String ownerUserUuid;
     private String label;
     private String host;
     private int port;

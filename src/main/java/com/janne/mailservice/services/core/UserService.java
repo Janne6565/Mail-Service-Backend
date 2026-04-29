@@ -5,6 +5,8 @@ import com.janne.mailservice.entity.UserEntity;
 import com.janne.mailservice.model.action.ChangePasswordDto;
 import com.janne.mailservice.model.action.UpdateUserDto;
 import com.janne.mailservice.model.action.UserCreationDto;
+import com.janne.mailservice.model.core.UserSummaryDto;
+import com.janne.mailservice.repository.ConnectionAccessRepository;
 import com.janne.mailservice.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ConnectionAccessRepository connectionAccessRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserEntity getUserByUuid(String uuid) {
@@ -99,7 +102,17 @@ public class UserService {
         if (user.getRole() == Role.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete admin user");
         }
+        connectionAccessRepository.deleteAllByUserUuid(uuid);
         userRepository.deleteById(uuid);
+    }
+
+    public List<UserSummaryDto> getAllUserSummaries() {
+        return userRepository.findAll().stream()
+                .map(u -> UserSummaryDto.builder()
+                        .uuid(u.getUuid())
+                        .username(u.getUsername())
+                        .build())
+                .toList();
     }
 
     public UserEntity toDto(UserEntity user) {

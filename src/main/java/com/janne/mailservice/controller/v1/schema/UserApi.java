@@ -3,11 +3,13 @@ package com.janne.mailservice.controller.v1.schema;
 import com.janne.mailservice.model.action.ChangePasswordDto;
 import com.janne.mailservice.model.action.UpdateUserDto;
 import com.janne.mailservice.model.core.UserDto;
+import com.janne.mailservice.model.core.UserSummaryDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,4 +41,8 @@ public interface UserApi {
     })
     @PostMapping("/me/change-password")
     ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDto dto);
+
+    @Operation(summary = "List all users (uuid + username) for access management")
+    @GetMapping("/users")
+    ResponseEntity<List<UserSummaryDto>> listUsers();
 }
