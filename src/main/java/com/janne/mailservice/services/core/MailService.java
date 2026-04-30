@@ -3,6 +3,7 @@ package com.janne.mailservice.services.core;
 import com.janne.mailservice.entity.MailEntity;
 import com.janne.mailservice.entity.SmtpConnectionEntity;
 import com.janne.mailservice.entity.UserEntity;
+import com.janne.mailservice.metrics.MailMetrics;
 import com.janne.mailservice.model.action.SendMailDto;
 import com.janne.mailservice.model.core.MailDto;
 import com.janne.mailservice.repository.MailRepository;
@@ -35,6 +36,7 @@ public class MailService {
     private final SmtpConnectionRepository smtpConnectionRepository;
     private final SettingsService settingsService;
     private final MailDispatcher mailDispatcher;
+    private final MailMetrics mailMetrics;
 
     public MailDto sendMail(String connectionUuid, String apiKeyUuid, SendMailDto dto) {
         SmtpConnectionEntity connection =
@@ -61,6 +63,12 @@ public class MailService {
             success = false;
             errorMessage = e.getMessage();
             log.error("Mail send failed for connection {}: {}", connectionUuid, errorMessage);
+        }
+
+        if (success) {
+            mailMetrics.recordMailSent();
+        } else {
+            mailMetrics.recordMailFailed();
         }
 
         MailEntity entity =
