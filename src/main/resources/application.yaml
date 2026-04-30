@@ -33,14 +33,20 @@ app:
     default-retention-days: ${DEFAULT_MAIL_RETENTION_DAYS:30}
 
 management:
-  server:
-    port: 8081
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
-        include: health,readiness,liveness,prometheus
-      base-path: /actuator
-  endpoint:
-    health:
-      probes:
-        enabled: true
+        include: health,info,prometheus,metrics
+  metrics:
+    tags:
+      application: ${METRICS_APPLICATION_TAG:cosy-domain-provider-backend}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  server:
+    port: 8081
