@@ -36,7 +36,7 @@ spec:
               mountPath: /var/lib/postgresql/data
           readinessProbe:
             exec:
-              command: [ "pg_isready", "-U", "mailservice" ]
+              command: ["pg_isready", "-U", "mailservice"]
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 5
@@ -44,7 +44,7 @@ spec:
     - metadata:
         name: data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 5Gi

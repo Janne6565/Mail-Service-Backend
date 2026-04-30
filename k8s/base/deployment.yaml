@@ -37,8 +37,9 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: management
+              containerPort: 8081
           env:
-            # Enable graceful shutdown at app level (align with terminationGracePeriodSeconds)
             - name: SERVER_SHUTDOWN
               value: graceful
             - name: ADMIN_USERNAME
@@ -85,7 +86,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8080
+              port: management
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 6
@@ -93,7 +94,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
+              port: management
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 3
@@ -101,7 +102,7 @@ spec:
           startupProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: management
             periodSeconds: 5
             failureThreshold: 30
 
@@ -117,4 +118,4 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
             capabilities:
-              drop: [ "ALL" ]
+              drop: ["ALL"]
