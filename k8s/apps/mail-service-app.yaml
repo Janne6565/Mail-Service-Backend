@@ -2,11 +2,13 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: mail-service
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
   namespace: argocd
 spec:
   project: mail-service
   source:
-    repoURL: https://github.com/janne6565/Mail-Service-Backend.git
+    repoURL: https://github.com/Janne6565/Mail-Service-Backend
     targetRevision: main
     path: k8s/base
   destination:
