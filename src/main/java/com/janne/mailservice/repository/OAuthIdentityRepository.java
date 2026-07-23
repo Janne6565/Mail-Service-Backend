@@ -1,0 +1,11 @@
+package com.janne.mailservice.repository;
+
+import com.janne.mailservice.entity.OAuthIdentityEntity;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OAuthIdentityRepository extends JpaRepository<OAuthIdentityEntity, String> {
+
+    Optional<OAuthIdentityEntity> findByProviderAndProviderSubject(
+            String provider, String providerSubject);
+}
