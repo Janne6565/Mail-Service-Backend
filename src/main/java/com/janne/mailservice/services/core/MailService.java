@@ -111,7 +111,9 @@ public class MailService {
                     .findAllBySmtpConnectionUuidAndApiKeyUuid(connectionUuid, apiKeyUuid, pageable)
                     .map(this::toDto);
         }
-        return mailRepository.findAllBySmtpConnectionUuid(connectionUuid, pageable).map(this::toDto);
+        return mailRepository
+                .findAllBySmtpConnectionUuid(connectionUuid, pageable)
+                .map(this::toDto);
     }
 
     public MailDto getMailById(String mailUuid, String connectionUuid, UserEntity user) {

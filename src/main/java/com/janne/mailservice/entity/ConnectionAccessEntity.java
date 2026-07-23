@@ -26,11 +26,9 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(indexes = @Index(columnList = "userUuid"))
 public class ConnectionAccessEntity {
 
-    @Id
-    private String connectionUuid;
+    @Id private String connectionUuid;
 
-    @Id
-    private String userUuid;
+    @Id private String userUuid;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

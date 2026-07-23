@@ -44,8 +44,8 @@ public class SmtpConnectionService {
     }
 
     /**
-     * Returns the connection if the user may read/use it (owner, granted, or admin).
-     * Throws 404 so that non-owners cannot enumerate connections they have no access to.
+     * Returns the connection if the user may read/use it (owner, granted, or admin). Throws 404 so
+     * that non-owners cannot enumerate connections they have no access to.
      */
     public SmtpConnectionEntity requireAccess(String uuid, UserEntity user) {
         SmtpConnectionEntity conn =
@@ -65,9 +65,7 @@ public class SmtpConnectionService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Connection not found");
     }
 
-    /**
-     * Returns the connection if the user may edit/delete/manage access (owner or admin).
-     */
+    /** Returns the connection if the user may edit/delete/manage access (owner or admin). */
     public SmtpConnectionEntity requireManage(String uuid, UserEntity user) {
         SmtpConnectionEntity conn =
                 smtpConnectionRepository
@@ -194,8 +192,7 @@ public class SmtpConnectionService {
                                         new ResponseStatusException(
                                                 HttpStatus.NOT_FOUND, "User not found"));
 
-        if (connectionAccessRepository.existsByConnectionUuidAndUserUuid(
-                uuid, dto.getUserUuid())) {
+        if (connectionAccessRepository.existsByConnectionUuidAndUserUuid(uuid, dto.getUserUuid())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User already has access");
         }
 
@@ -224,7 +221,9 @@ public class SmtpConnectionService {
 
     // ── Kept for ApiKeyService / MailService (access-level check) ─────────────
 
-    /** @deprecated Use {@link #requireAccess(String, UserEntity)} where possible. */
+    /**
+     * @deprecated Use {@link #requireAccess(String, UserEntity)} where possible.
+     */
     public SmtpConnectionEntity getOwnedConnection(String uuid, String userUuid) {
         return smtpConnectionRepository
                 .findByUuidAndOwnerUserUuid(uuid, userUuid)

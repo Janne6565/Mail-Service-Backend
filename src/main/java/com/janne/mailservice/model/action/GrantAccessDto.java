@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 public class GrantAccessDto {
 
-    @NotBlank
-    private String userUuid;
+    @NotBlank private String userUuid;
 }

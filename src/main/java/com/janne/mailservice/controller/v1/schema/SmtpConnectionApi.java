@@ -67,8 +67,7 @@ public interface SmtpConnectionApi {
     @Operation(summary = "Send a mail through a connection (JWT auth)")
     @ApiResponse(responseCode = "200")
     @PostMapping("/{id}/send")
-    ResponseEntity<MailDto> sendMail(
-            @PathVariable String id, @Valid @RequestBody SendMailDto dto);
+    ResponseEntity<MailDto> sendMail(@PathVariable String id, @Valid @RequestBody SendMailDto dto);
 
     @Operation(summary = "Test SMTP connectivity for a connection")
     @ApiResponses({

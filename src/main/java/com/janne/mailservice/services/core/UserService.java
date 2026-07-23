@@ -108,10 +108,12 @@ public class UserService {
 
     public List<UserSummaryDto> getAllUserSummaries() {
         return userRepository.findAll().stream()
-                .map(u -> UserSummaryDto.builder()
-                        .uuid(u.getUuid())
-                        .username(u.getUsername())
-                        .build())
+                .map(
+                        u ->
+                                UserSummaryDto.builder()
+                                        .uuid(u.getUuid())
+                                        .username(u.getUsername())
+                                        .build())
                 .toList();
     }
 
