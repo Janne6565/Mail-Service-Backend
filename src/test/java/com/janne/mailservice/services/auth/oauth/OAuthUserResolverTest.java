@@ -43,9 +43,16 @@ class OAuthUserResolverTest {
         resolver = new OAuthUserResolver(properties, identityRepository, userRepository);
     }
 
+    /** Unverified email (emailVerified=false) — the fail-closed default for most flows. */
     private OAuthUserInfo userInfo(
             String subject, String username, String email, String... groups) {
-        return new OAuthUserInfo(subject, email, username, List.of(groups));
+        return new OAuthUserInfo(subject, email, false, username, List.of(groups));
+    }
+
+    /** Verified email (emailVerified=true) — required to auto-link to a pre-existing account. */
+    private OAuthUserInfo verifiedUserInfo(
+            String subject, String username, String email, String... groups) {
+        return new OAuthUserInfo(subject, email, true, username, List.of(groups));
     }
 
     private UserEntity user(String username, String passwordHash, Role role) {
@@ -76,6 +83,25 @@ class OAuthUserResolverTest {
         assertThat(result.getUsername()).isEqualTo("alice");
         assertThat(result.getRole()).isEqualTo(Role.USER);
         assertThat(result.getPasswordHash()).isNull();
+        verify(identityRepository).save(any(OAuthIdentityEntity.class));
+    }
+
+    @Test
+    void resolveLoginUser_newUser_unverifiedEmail_stillCreatesUser() {
+        // A brand-new user creating their own account does not need email_verified.
+        when(identityRepository.findByProviderAndProviderSubject(PROVIDER, "sub-new-unverified"))
+                .thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("new@example.com")).thenReturn(Optional.empty());
+        when(userRepository.existsByUsernameIgnoreCase("newbie")).thenReturn(false);
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserEntity result =
+                resolver.resolveLoginUser(
+                        PROVIDER,
+                        userInfo("sub-new-unverified", "newbie", "new@example.com", USER_GROUP));
+
+        assertThat(result.getUsername()).isEqualTo("newbie");
+        assertThat(result.getRole()).isEqualTo(Role.USER);
         verify(identityRepository).save(any(OAuthIdentityEntity.class));
     }
 
@@ -155,12 +181,38 @@ class OAuthUserResolverTest {
 
         UserEntity result =
                 resolver.resolveLoginUser(
-                        PROVIDER, userInfo("sub-link", "bob", "bob@example.com", USER_GROUP));
+                        PROVIDER,
+                        verifiedUserInfo("sub-link", "bob", "bob@example.com", USER_GROUP));
 
         assertThat(result).isSameAs(existing);
         verify(identityRepository).save(any(OAuthIdentityEntity.class));
         // Existing user is reused, not re-created.
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void resolveLoginUser_emailMatchesExistingUser_unverifiedEmail_throwsAndDoesNotLink() {
+        UserEntity existing = user("bob", "hash", Role.USER);
+        when(identityRepository.findByProviderAndProviderSubject(PROVIDER, "sub-unverified"))
+                .thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("bob@example.com"))
+                .thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(
+                        () ->
+                                resolver.resolveLoginUser(
+                                        PROVIDER,
+                                        userInfo(
+                                                "sub-unverified",
+                                                "bob",
+                                                "bob@example.com",
+                                                USER_GROUP)))
+                .isInstanceOf(OAuthAccessDeniedException.class);
+
+        // No identity is linked, the existing user is neither saved nor role-synced.
+        verify(identityRepository, never()).save(any());
+        verify(userRepository, never()).save(any());
+        assertThat(existing.getRole()).isEqualTo(Role.USER);
     }
 
     @Test
@@ -173,7 +225,8 @@ class OAuthUserResolverTest {
 
         UserEntity result =
                 resolver.resolveLoginUser(
-                        PROVIDER, userInfo("sub-link2", "bob", "bob@example.com", ADMIN_GROUP));
+                        PROVIDER,
+                        verifiedUserInfo("sub-link2", "bob", "bob@example.com", ADMIN_GROUP));
 
         assertThat(result.getRole()).isEqualTo(Role.ADMIN);
         verify(identityRepository).save(any(OAuthIdentityEntity.class));
@@ -210,6 +263,23 @@ class OAuthUserResolverTest {
 
         assertThat(result).isSameAs(linked);
         assertThat(result.getRole()).isEqualTo(Role.ADMIN);
+        verify(userRepository, never()).save(any());
+        verify(identityRepository, never()).save(any());
+    }
+
+    @Test
+    void resolveLoginUser_existingIdentity_unverifiedEmail_stillReuses() {
+        // An already-linked identity reused by provider+subject does not need email_verified.
+        UserEntity linked = user("erin", null, Role.USER);
+        OAuthIdentityEntity identity = new OAuthIdentityEntity(linked, PROVIDER, "sub-8");
+        when(identityRepository.findByProviderAndProviderSubject(PROVIDER, "sub-8"))
+                .thenReturn(Optional.of(identity));
+
+        UserEntity result =
+                resolver.resolveLoginUser(
+                        PROVIDER, userInfo("sub-8", "erin", "erin@example.com", USER_GROUP));
+
+        assertThat(result).isSameAs(linked);
         verify(userRepository, never()).save(any());
         verify(identityRepository, never()).save(any());
     }

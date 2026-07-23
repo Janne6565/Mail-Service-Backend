@@ -68,6 +68,14 @@ public class OAuthUserResolver {
         if (email != null && !email.isBlank()) {
             Optional<UserEntity> byEmail = userRepository.findByEmailIgnoreCase(email);
             if (byEmail.isPresent()) {
+                // Fail closed: never attach this identity to a PRE-EXISTING local account unless
+                // the provider asserts the email is verified. Without this, a forged/unverified
+                // email claim could hijack an existing account. Creating a brand-new user or
+                // reusing an already-linked identity does not need this gate.
+                if (!userInfo.emailVerified()) {
+                    throw new OAuthAccessDeniedException(
+                            "Cannot link to an existing account without a verified email");
+                }
                 UserEntity user = byEmail.get();
                 identityRepository.save(
                         new OAuthIdentityEntity(user, provider, userInfo.subject()));

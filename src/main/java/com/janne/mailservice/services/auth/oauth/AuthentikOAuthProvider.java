@@ -23,6 +23,7 @@ public class AuthentikOAuthProvider implements OAuthProviderClient {
 
     private static final String CLAIM_SUBJECT = "sub";
     private static final String CLAIM_EMAIL = "email";
+    private static final String CLAIM_EMAIL_VERIFIED = "email_verified";
     private static final String CLAIM_USERNAME = "preferred_username";
     private static final String CLAIM_GROUPS = "groups";
 
@@ -58,6 +59,7 @@ public class AuthentikOAuthProvider implements OAuthProviderClient {
         return new OAuthUserInfo(
                 asString(raw.get(CLAIM_SUBJECT)),
                 asString(raw.get(CLAIM_EMAIL)),
+                asBoolean(raw.get(CLAIM_EMAIL_VERIFIED)),
                 asString(raw.get(CLAIM_USERNAME)),
                 extractGroups(raw.get(CLAIM_GROUPS)));
     }
@@ -71,5 +73,20 @@ public class AuthentikOAuthProvider implements OAuthProviderClient {
 
     private String asString(Object value) {
         return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * Fail-closed boolean parse for {@code email_verified}: true only when the claim is a Boolean
+     * {@code true} or the string {@code "true"} (case-insensitive). Anything else — absent, null,
+     * or an unexpected type — is treated as {@code false}.
+     */
+    private boolean asBoolean(Object value) {
+        if (value instanceof Boolean bool) {
+            return bool;
+        }
+        if (value instanceof String string) {
+            return "true".equalsIgnoreCase(string);
+        }
+        return false;
     }
 }
