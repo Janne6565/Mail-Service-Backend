@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: app
-          image: ghcr.io/janne6565/mail-service-backend:main-681ea37
+          image: ghcr.io/janne6565/mail-service-backend:main-a6b0c62
           imagePullPolicy: Always
           ports:
             - name: http
@@ -82,6 +82,20 @@ spec:
                 secretKeyRef:
                   name: postgres-secrets
                   key: db_password
+            - name: MAILSERVICE_OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: oauth_client_id
+            - name: MAILSERVICE_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mail-service-secrets
+                  key: oauth_client_secret
+            - name: MAILSERVICE_FRONTEND_URL
+              value: https://mail-service.jannekeipert.de
+            - name: MAILSERVICE_OAUTH_CALLBACK_URI
+              value: https://mail-service.jannekeipert.de/api/v1/auth/oauth/authentik/callback
 
           readinessProbe:
             httpGet:
