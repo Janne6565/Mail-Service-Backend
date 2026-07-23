@@ -35,7 +35,11 @@ public class SecurityFilterChainConfig {
                                                 "/swagger-ui.html",
                                                 "/actuator/**")
                                         .permitAll()
-                                        .requestMatchers("/v1/admin/**")
+                                        // WebMvcConfig prefixes every @RestController with
+                                        // "/api", so admin endpoints resolve to /api/v1/admin/**.
+                                        // The matcher must include that prefix or the rule never
+                                        // fires and any authenticated USER reaches admin routes.
+                                        .requestMatchers("/api/v1/admin/**")
                                         .hasRole("ADMIN")
                                         .dispatcherTypeMatchers(DispatcherType.ASYNC)
                                         .permitAll()
