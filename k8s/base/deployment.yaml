@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: app
-          image: ghcr.io/janne6565/mail-service-backend:main-a6b0c62
+          image: ghcr.io/janne6565/mail-service-backend:main-fc9fc46
           imagePullPolicy: Always
           ports:
             - name: http
