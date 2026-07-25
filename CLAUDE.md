@@ -44,9 +44,3 @@ Never manually reformat — always run `spotless:apply`.
 - `specs/auth.md` — JWT + API key auth flow, permission model
 - `specs/patterns.md` — coding conventions, Lombok usage, DTO conventions
 
-<!-- agent-conventions:start (synced from ~/projects/agents — edit there, not here) -->
-@docs/conventions/AGENT.md
-@docs/conventions/SPRING_BOOT.md
-@docs/conventions/AUTH.md
-@docs/conventions/mail-service.md
-<!-- agent-conventions:end -->
