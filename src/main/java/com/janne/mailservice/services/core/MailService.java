@@ -53,11 +53,24 @@ public class MailService {
         try {
             JavaMailSender sender = mailDispatcher.buildSender(connection);
             MimeMessage message = sender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            boolean multipart = hasTextAlternative(dto);
+            // The multipart constructor is only used when there is genuinely a second part:
+            // it wraps every message in a multipart container, which is needless overhead for
+            // the single-part case and changes the MIME structure recipients see.
+            MimeMessageHelper helper =
+                    multipart
+                            ? new MimeMessageHelper(message, true, "UTF-8")
+                            : new MimeMessageHelper(message, "UTF-8");
             helper.setFrom(connection.getFromAddress());
             helper.setTo(dto.getRecipient());
             helper.setSubject(dto.getSubject());
-            helper.setText(dto.getBody(), dto.isEnableHtml());
+            if (multipart) {
+                // Plain text first, HTML second: multipart/alternative is ordered
+                // least-to-most preferred, so a client picks the HTML when it can render it.
+                helper.setText(dto.getTextBody(), dto.getBody());
+            } else {
+                helper.setText(dto.getBody(), dto.isEnableHtml());
+            }
             sender.send(message);
         } catch (Exception e) {
             success = false;
@@ -84,6 +97,14 @@ public class MailService {
                         .build();
 
         return toDto(mailRepository.save(entity));
+    }
+
+    /**
+     * A text alternative only makes sense next to an HTML body. Callers that predate the field
+     * simply omit it and keep the previous single-part behaviour.
+     */
+    private static boolean hasTextAlternative(SendMailDto dto) {
+        return dto.isEnableHtml() && dto.getTextBody() != null && !dto.getTextBody().isBlank();
     }
 
     public Page<MailDto> getMailsByApiKey(String connectionUuid, int page, int size) {
