@@ -67,7 +67,16 @@ management:
     tags:
       application: ${METRICS_APPLICATION_TAG:mail-service-backend}
     distribution:
+      # Client-side percentiles, NOT a bucket histogram -- a histogram ships one series
+      # per bucket per URI per status, and the whole cluster now shares the Grafana
+      # Cloud free tier's 10,000 active series. See the longer note in the
+      # dust-of-apollon backend, where this shape alone cost 5,106 series.
+      # These percentiles are computed per JVM and cannot be re-aggregated across
+      # replicas, nor a new quantile recovered later; add one here rather than
+      # re-enabling the histogram.
       percentiles-histogram:
-        http.server.requests: true
+        http.server.requests: false
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
   server:
     port: 8081
